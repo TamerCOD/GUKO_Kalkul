@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.2">
+    <title>Калькулятор стоимости звонка</title>
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/gost-type-a');
+        body {
+            background-color: #ffffff;
+            color: #333;
+            font-family: 'GOST Type A', sans-serif;
+            text-align: center;
+            padding: 30px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 30px;
+            background: #f2f2f2;
+            border-radius: 20px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        h2 {
+            font-size: 28px;
+            text-transform: uppercase;
+            color: #e6007e;
+        }
+        label, input, select {
+            font-size: 20px;
+            color: #333;
+        }
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .input-group div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        input, select {
+            padding: 12px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            color: #333;
+            text-align: center;
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        button {
+            background: #e6007e;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+            box-shadow: 0px 5px 15px rgba(230, 0, 126, 0.4);
+        }
+        button:hover {
+            background: #ff1493;
+        }
+        #result, #formula {
+            margin-top: 20px;
+            font-size: 22px;
+            color: #e6007e;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+    <script>
+        function calculateCost() {
+            let rate = parseFloat(document.getElementById("rate").value);
+            let step = parseInt(document.getElementById("step").value);
+            let minutes = parseInt(document.getElementById("minutes").value);
+            let seconds = parseInt(document.getElementById("seconds").value);
+            
+            let totalSeconds = minutes * 60 + seconds;
+            let roundedSeconds = Math.ceil(totalSeconds / step) * step;
+            let cost = (roundedSeconds / 60) * rate;
+            
+            document.getElementById("result").innerHTML = `Итоговая стоимость: ${cost.toFixed(2)} сом.`;
+            document.getElementById("formula").innerHTML = `Формула расчета:<br>
+                1. Общее время звонка: ${minutes} мин * 60 + ${seconds} сек = ${totalSeconds} сек.<br>
+                2. Округление по шагу тарификации: ${totalSeconds} сек → ${roundedSeconds} сек.<br>
+                3. Перевод в минуты: ${roundedSeconds} сек / 60 = ${(roundedSeconds / 60).toFixed(2)} мин.<br>
+                4. Умножение на тариф: ${(roundedSeconds / 60).toFixed(2)} мин * ${rate} сом/мин = ${cost.toFixed(2)} сом.`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Калькулятор стоимости звонка</h2>
+        <label>Тарификация (сом/мин): </label>
+        <input type="number" id="rate" step="0.01" value="1.5">
+        
+        <label>Шаг тарификации: </label>
+        <select id="step">
+            <option value="60">1 минута</option>
+            <option value="10">10 секунд</option>
+            <option value="1">1 секунда</option>
+        </select>
+        
+        <label>Длительность звонка:</label>
+        <div class="input-group">
+            <div>
+                <label for="minutes">Минуты</label>
+                <input type="number" id="minutes" value="0" min="0" placeholder="0">
+            </div>
+            <div>
+                <label for="seconds">Секунды</label>
+                <input type="number" id="seconds" value="0" min="0" max="59" placeholder="0">
+            </div>
+        </div>
+        
+        <button onclick="calculateCost()">Рассчитать</button>
+        
+        <h3 id="result"></h3>
+        <p id="formula"></p>
+        
+        <div class="footer">Сделано ГУКОиКОшечкой</div>
+    </div>
+</body>
+</html>
