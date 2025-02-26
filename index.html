@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.2">
-    <title>Калькулятор стоимости звонка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Калькулятор связи</title>
     <style>
         @import url('https://fonts.cdnfonts.com/css/gost-type-a');
         body {
@@ -12,10 +12,12 @@
             font-family: 'GOST Type A', sans-serif;
             text-align: center;
             padding: 30px;
+            transition: background 0.3s, color 0.3s;
         }
         .container {
-            max-width: 500px;
-            margin: auto;
+            max-width: 90%;
+            width: 400px;
+            margin: 20px auto;
             padding: 30px;
             background: #f2f2f2;
             border-radius: 20px;
@@ -26,24 +28,17 @@
             font-size: 28px;
             text-transform: uppercase;
             color: #e6007e;
+            margin-bottom: 20px;
         }
-        label, input, select {
-            font-size: 20px;
+        label {
+            display: block;
+            font-size: 18px;
             color: #333;
-        }
-        .input-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .input-group div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+            margin-bottom: 5px;
+            text-align: left;
         }
         input, select {
-            padding: 12px;
+            padding: 10px;
             background: #e0e0e0;
             border: none;
             border-radius: 8px;
@@ -51,86 +46,132 @@
             text-align: center;
             box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1);
             width: 100%;
+            margin-bottom: 15px;
         }
         button {
             background: #e6007e;
             color: #fff;
             border: none;
-            padding: 12px 25px;
-            font-size: 20px;
+            padding: 12px 20px;
+            font-size: 18px;
             border-radius: 8px;
             cursor: pointer;
             margin-top: 15px;
             transition: 0.3s;
             box-shadow: 0px 5px 15px rgba(230, 0, 126, 0.4);
+            width: 100%;
         }
         button:hover {
             background: #ff1493;
         }
-        #result, #formula {
-            margin-top: 20px;
-            font-size: 22px;
-            color: #e6007e;
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            background: #e6007e;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #fff;
+        }
+        .dark-mode .container {
+            background: #333;
         }
         .footer {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
             font-size: 14px;
             color: #777;
+            margin-top: 20px;
         }
     </style>
     <script>
         function calculateCost() {
             let rate = parseFloat(document.getElementById("rate").value);
             let step = parseInt(document.getElementById("step").value);
-            let minutes = parseInt(document.getElementById("minutes").value);
-            let seconds = parseInt(document.getElementById("seconds").value);
+            let minutes = parseInt(document.getElementById("minutes").value) || 0;
+            let seconds = parseInt(document.getElementById("seconds").value) || 0;
             
             let totalSeconds = minutes * 60 + seconds;
             let roundedSeconds = Math.ceil(totalSeconds / step) * step;
             let cost = (roundedSeconds / 60) * rate;
             
-            document.getElementById("result").innerHTML = `Итоговая стоимость: ${cost.toFixed(2)} сом.`;
-            document.getElementById("formula").innerHTML = `Формула расчета:<br>
-                1. Общее время звонка: ${minutes} мин * 60 + ${seconds} сек = ${totalSeconds} сек.<br>
-                2. Округление по шагу тарификации: ${totalSeconds} сек → ${roundedSeconds} сек.<br>
-                3. Перевод в минуты: ${roundedSeconds} сек / 60 = ${(roundedSeconds / 60).toFixed(2)} мин.<br>
-                4. Умножение на тариф: ${(roundedSeconds / 60).toFixed(2)} мин * ${rate} сом/мин = ${cost.toFixed(2)} сом.`;
+            document.getElementById("result-call").innerHTML = `
+                <b>Расчет:</b><br>
+                Общее время: ${totalSeconds} сек<br>
+                Округленное время: ${roundedSeconds} сек<br>
+                Итоговая стоимость: ${cost.toFixed(2)} сом.
+            `;
+        }
+        
+        function calculateInternetCost() {
+            let rate = parseFloat(document.getElementById("rate-internet").value);
+            let step = parseInt(document.getElementById("step-internet").value);
+            let mb = parseInt(document.getElementById("mb").value) || 0;
+            let kb = parseInt(document.getElementById("kb").value) || 0;
+            
+            let totalKB = mb * 1024 + kb;
+            let roundedKB = Math.ceil(totalKB / step) * step;
+            let cost = (roundedKB / 1024) * rate;
+            
+            document.getElementById("result-internet").innerHTML = `
+                <b>Расчет:</b><br>
+                Объем данных: ${totalKB} КБ<br>
+                Округленный объем: ${roundedKB} КБ<br>
+                Итоговая стоимость: ${cost.toFixed(2)} сом.
+            `;
         }
     </script>
 </head>
 <body>
-    <div class="container">
-        <h2>Калькулятор стоимости звонка</h2>
-        <label>Тарификация (сом/мин): </label>
-        <input type="number" id="rate" step="0.01" value="1.5">
-        
-        <label>Шаг тарификации: </label>
-        <select id="step">
-            <option value="60">1 минута</option>
-            <option value="10">10 секунд</option>
-            <option value="1">1 секунда</option>
-        </select>
-        
-        <label>Длительность звонка:</label>
-        <div class="input-group">
-            <div>
-                <label for="minutes">Минуты</label>
-                <input type="number" id="minutes" value="0" min="0" placeholder="0">
-            </div>
-            <div>
-                <label for="seconds">Секунды</label>
-                <input type="number" id="seconds" value="0" min="0" max="59" placeholder="0">
-            </div>
-        </div>
-        
-        <button onclick="calculateCost()">Рассчитать</button>
-        
-        <h3 id="result"></h3>
-        <p id="formula"></p>
-        
-        <div class="footer">Сделано ГУКОиКОшечкой</div>
+    <button class="theme-toggle" onclick="document.body.classList.toggle('dark-mode')">Переключить тему</button>
+    <div id="menu" class="container">
+        <h2>Выберите калькулятор</h2>
+        <button onclick="document.getElementById('menu').style.display = 'none'; document.getElementById('call-calc').style.display = 'block';">Калькулятор звонков</button>
+        <button onclick="document.getElementById('menu').style.display = 'none'; document.getElementById('internet-calc').style.display = 'block';">Калькулятор интернета</button>
     </div>
+    
+    <div id="call-calc" class="container" style="display: none;">
+        <h2>Калькулятор звонков</h2>
+        <label for="rate">Тариф (сом/мин)</label>
+        <input type="number" id="rate" step="0.01" value="1.5">
+        <label for="step">Шаг тарификации</label>
+        <select id="step">
+            <option value="60">1 мин</option>
+            <option value="10">10 сек</option>
+            <option value="1">1 сек</option>
+        </select>
+        <label for="minutes">Минуты</label>
+        <input type="number" id="minutes" value="0">
+        <label for="seconds">Секунды</label>
+        <input type="number" id="seconds" value="0">
+        <button onclick="calculateCost()">Рассчитать</button>
+        <p id="result-call"></p>
+        <button onclick="location.reload()">Назад</button>
+    </div>
+    
+    <div id="internet-calc" class="container" style="display: none;">
+        <h2>Калькулятор интернета</h2>
+        <label for="rate-internet">Тариф (сом/МБ)</label>
+        <input type="number" id="rate-internet" step="0.01" value="1.5">
+        <label for="step-internet">Шаг тарификации</label>
+        <select id="step-internet">
+            <option value="1024">1 МБ</option>
+            <option value="100">100 КБ</option>
+            <option value="1">1 КБ</option>
+        </select>
+        <label for="mb">Мегабайты</label>
+        <input type="number" id="mb" value="0">
+        <label for="kb">Килобайты</label>
+        <input type="number" id="kb" value="0">
+        <button onclick="calculateInternetCost()">Рассчитать</button>
+        <p id="result-internet"></p>
+        <button onclick="location.reload()">Назад</button>
+    </div>
+    <div class="footer">Сделано ГУКОиКОшечкой</div>
 </body>
 </html>
